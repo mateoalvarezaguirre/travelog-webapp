@@ -11,16 +11,18 @@ const API_KEY = "12588265-86c13fc3629bd8729dadccbe1";
 
 export default function JournalDetailPage({ params }: { params: { id: string } }) {
   const [liked, setLiked] = useState(false)
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<string[]>([]);
   const [comment, setComment] = useState("");
 
   useEffect(() => {
-    const getLandscapeImage = async (filter: string): Promise<string> => {
+    const getLandscapeImage = async (filter: string): Promise<string[]> => {
       try {
         const response = await fetch(
           `https://pixabay.com/api/?key=${API_KEY}&q=landscape,${encodeURIComponent(filter)}&image_type=photo&min_width=600`
         );
         const data = await response.json();
+
+        console.log(data, `https://pixabay.com/api/?key=${API_KEY}&q=landscape,${encodeURIComponent(filter)}&image_type=photo&min_width=600`);
 
         if (data.hits && data.hits.length > 0) {
           // Retorna las primeras 3 URLs de las imágenes
@@ -34,7 +36,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
         ];
       } catch (error) {
         console.error("Error fetching image from pixabay", error);
-        return "";
+        return [""];
       }
     };
 

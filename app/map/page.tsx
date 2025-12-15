@@ -25,6 +25,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
+import BarcelonaImg from "@/public/trips/barcelona.jpg";
+import KyotoImg from "@/public/trips/kyoto.jpg";
+import SantoriniImg from "@/public/trips/santorini.jpg";
+import NewYorkImg from "@/public/trips/new-york.jpeg";
+import BaliImg from "@/public/trips/bali.jpeg";
+import CairoImg from "@/public/trips/cairo.jpeg";
+import Kyoto2Img from "@/public/trips/kyoto-2.jpeg";
+import MachuPichuImg from "@/public/trips/machu-pichu.jpg";
+
 // Sample data for visited places
 const visitedPlaces = [
   {
@@ -34,7 +43,7 @@ const visitedPlaces = [
     date: "June 2023",
     coordinates: { lat: 41.3851, lng: 2.1734 },
     journalCount: 3,
-    image: "/placeholder.svg?height=80&width=120",
+    image: BarcelonaImg.src,
   },
   {
     id: 2,
@@ -43,7 +52,7 @@ const visitedPlaces = [
     date: "April 2023",
     coordinates: { lat: 35.6762, lng: 139.6503 },
     journalCount: 2,
-    image: "/placeholder.svg?height=80&width=120",
+    image: KyotoImg.src,
   },
   {
     id: 3,
@@ -52,7 +61,7 @@ const visitedPlaces = [
     date: "September 2022",
     coordinates: { lat: 36.3932, lng: 25.4615 },
     journalCount: 1,
-    image: "/placeholder.svg?height=80&width=120",
+    image: SantoriniImg.src,
   },
   {
     id: 4,
@@ -61,7 +70,7 @@ const visitedPlaces = [
     date: "December 2022",
     coordinates: { lat: 40.7128, lng: -74.006 },
     journalCount: 2,
-    image: "/placeholder.svg?height=80&width=120",
+    image: NewYorkImg.src,
   },
   {
     id: 5,
@@ -70,7 +79,7 @@ const visitedPlaces = [
     date: "February 2023",
     coordinates: { lat: -8.3405, lng: 115.092 },
     journalCount: 1,
-    image: "/placeholder.svg?height=80&width=120",
+    image: BaliImg.src,
   },
   {
     id: 6,
@@ -79,7 +88,7 @@ const visitedPlaces = [
     date: "November 2022",
     coordinates: { lat: 30.0444, lng: 31.2357 },
     journalCount: 1,
-    image: "/placeholder.svg?height=80&width=120",
+    image: CairoImg.src,
   },
 ]
 
@@ -91,7 +100,7 @@ const plannedTrips = [
     country: "Japan",
     date: "March 2024",
     coordinates: { lat: 35.0116, lng: 135.7681 },
-    image: "/placeholder.svg?height=80&width=120",
+    image: Kyoto2Img.src,
   },
   {
     id: 2,
@@ -99,7 +108,7 @@ const plannedTrips = [
     country: "Peru",
     date: "July 2024",
     coordinates: { lat: -13.1631, lng: -72.545 },
-    image: "/placeholder.svg?height=80&width=120",
+    image: MachuPichuImg.src,
   },
 ]
 

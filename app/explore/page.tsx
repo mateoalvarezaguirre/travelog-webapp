@@ -21,6 +21,14 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import KyotoImg from "@/public/trips/kyoto.jpg";
+import MachuPichuImg from "@/public/trips/machu-pichu.jpg";
+import AfricaImg from "@/public/trips/africa.jpg";
+import SantoriniImg from "@/public/trips/santorini.jpg";
+import KyotoImage2 from "@/public/trips/kyoto-2.jpeg";
+import BaliImg from "@/public/trips/bali.jpeg";
+import MoroccoImg from "@/public/trips/morocco.jpeg";
+import VeniceImg from "@/public/trips/venice.jpeg";
 
 // Sample data for featured journals
 const featuredJournals = [
@@ -31,7 +39,7 @@ const featuredJournals = [
     location: "Kyoto, Japan",
     excerpt:
       "Vagando por las antiguas calles de Kioto, descubrí templos y jardines ocultos que parecían intocados por el tiempo...",
-    image: "https://pixabay.com/get/g5e649639eb85ea082f4c2c948ebcd9f8c303f9aed819302220da1f714eccdae39439b9a904ea11413772cd04fa1b429ad79733ee877e4ab8111ea8003df7eac9_1280.jpg",
+    image: KyotoImg.src,
     likes: 156,
     comments: 42,
     author: {
@@ -48,7 +56,7 @@ const featuredJournals = [
     location: "Cusco, Peru",
     excerpt:
       "Cuatro días de terreno desafiante, vistas impresionantes y ruinas antiguas culminando con el amanecer sobre Machu Picchu...",
-    image: "https://pixabay.com/get/g7d6e2dba79a2e2bfc66c11a3847d708223332cf37dfa2b27a819281682298e260b1de9e19f3811e1bd814eac3874416eb1e430c75c861531e2d43284fbee5b4c_1280.jpg",
+    image: MachuPichuImg.src,
     likes: 203,
     comments: 67,
     author: {
@@ -65,7 +73,7 @@ const featuredJournals = [
     location: "Serengeti National Park, Tanzania",
     excerpt:
       "Presenciar la gran migración a través de las llanuras del Serengeti fue una experiencia humillante que me conectó con el ritmo de la naturaleza...",
-    image: "https://pixabay.com/get/g5587c62caff50c59c7f911edae1092fefac4204b7b14d518cf7af166c5c642a869222d762d7a948960268f5dbaa7a85713fbe294863d88385f79d12b7d0b921f_1280.jpg",
+    image: AfricaImg.src,
     likes: 178,
     comments: 53,
     author: {
@@ -83,42 +91,42 @@ const popularDestinations = [
     id: 1,
     name: "Santorini",
     country: "Greece",
-    image: "https://pixabay.com/get/g13bc7816e754ed6b9016f471c8b0ce5df50238a124f9d248293132371bfb62f578b96b1acaf1e8578ef2f6c0cef9ecd9ff866f20dc14faf2bd34ee6ce0f115c4_1280.jpg",
+    image: SantoriniImg.src,
     journalCount: 1243,
   },
   {
     id: 2,
     name: "Kyoto",
     country: "Japan",
-    image: "https://pixabay.com/get/gc3fbd45842ba35fa10178a65cd03ce8e56ae5080a7c0d25eb5c993d497cc60e4d4aae012d982a1dd5fc0ca1e96f31b9cff7f7d5ff808d37b344ef612ed4aec41_1280.jpg",
+    image: KyotoImage2.src,
     journalCount: 987,
   },
   {
     id: 3,
     name: "Bali",
     country: "Indonesia",
-    image: "https://pixabay.com/get/g1408cc527e5ee3788ff6c2f3530421ee73ace37f8382bb74565c3605def4e9a98098d48ca671416a4931bf626bd3a4238e50ca3bd94c2ba11ef288646958e19d_1280.jpg",
+    image: BaliImg.src,
     journalCount: 1876,
   },
   {
     id: 4,
     name: "Marrakech",
     country: "Morocco",
-    image: "https://pixabay.com/get/g422890c366030c7c3656b65456d3b078aacd8adb20475242ffe1eac225c78881a821bda4421f1952e9795fcabf0901df8846c50507ac7aa255fa658b09d7990b_1280.jpg",
+    image: MoroccoImg.src,
     journalCount: 756,
   },
   {
     id: 5,
     name: "Machu Picchu",
     country: "Peru",
-    image: "https://pixabay.com/get/g930351a13fd6bebe939a7c34cad0f845e6c3ec7b90cf49445830f2e48476014041be9edabe390401c3c202a50554982513b9cfced5e233beeb617c8b399a0bdd_1280.jpg",
+    image: MachuPichuImg.src,
     journalCount: 1102,
   },
   {
     id: 6,
     name: "Venice",
     country: "Italy",
-    image: "https://pixabay.com/get/gef957aa81e300a87a7302c807902960173de8a569bca784949f4fb07138df3de98f7d12acb60ac454b4f4904be53718987e5a7c23a09ec9019d7f6823d1c9f7e_1280.jpg",
+    image: VeniceImg.src,
     journalCount: 1543,
   },
 ]
@@ -208,7 +216,7 @@ export default function ExplorePage() {
               <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <div className="relative aspect-[16/9]">
                   <img
-                    src={featuredJournals[0].image || "/placeholder.svg"}
+                    src={featuredJournals[0].image || "/placeholder.png"}
                     alt={featuredJournals[0].title}
                     className="w-full h-full object-cover"
                   />
@@ -241,7 +249,7 @@ export default function ExplorePage() {
                   <div className="flex items-center mb-4">
                     <Avatar className="h-8 w-8 mr-2">
                       <AvatarImage
-                        src={featuredJournals[0].author.avatar || "/placeholder.svg"}
+                        src={featuredJournals[0].author.avatar || "/placeholder.png"}
                         alt={featuredJournals[0].author.name}
                       />
                       <AvatarFallback>{featuredJournals[0].author.name.charAt(0)}</AvatarFallback>
@@ -292,7 +300,7 @@ export default function ExplorePage() {
                 >
                   <div className="relative aspect-video">
                     <img
-                      src={journal.image || "/placeholder.svg"}
+                      src={journal.image || "/placeholder.png"}
                       alt={journal.title}
                       className="w-full h-full object-cover"
                     />
@@ -303,7 +311,7 @@ export default function ExplorePage() {
                   <div className="p-4">
                     <div className="flex items-center mb-2">
                       <Avatar className="h-6 w-6 mr-2">
-                        <AvatarImage src={journal.author.avatar || "/placeholder.svg"} alt={journal.author.name} />
+                        <AvatarImage src={journal.author.avatar || "/placeholder.png"} alt={journal.author.name} />
                         <AvatarFallback>{journal.author.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="text-xs">
@@ -380,7 +388,7 @@ export default function ExplorePage() {
             <div key={destination.id} className="group relative rounded-xl overflow-hidden cursor-pointer">
               <div className="aspect-square">
                 <img
-                  src={destination.image || "/placeholder.svg"}
+                  src={destination.image || "/placeholder.png"}
                   alt={destination.name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
@@ -452,7 +460,7 @@ export default function ExplorePage() {
                 <li className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                     <img
-                      src="/placeholder.svg?height=48&width=48"
+                      src="/placeholder.png?height=48&width=48"
                       alt="Cherry blossoms in Japan"
                       className="w-full h-full object-cover"
                     />
@@ -465,7 +473,7 @@ export default function ExplorePage() {
                 <li className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                     <img
-                      src="/placeholder.svg?height=48&width=48"
+                      src="/placeholder.png?height=48&width=48"
                       alt="Northern Lights"
                       className="w-full h-full object-cover"
                     />
@@ -478,7 +486,7 @@ export default function ExplorePage() {
                 <li className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                     <img
-                      src="/placeholder.svg?height=48&width=48"
+                      src="/placeholder.png?height=48&width=48"
                       alt="Autumn in New England"
                       className="w-full h-full object-cover"
                     />
@@ -500,15 +508,15 @@ export default function ExplorePage() {
               </p>
               <div className="flex gap-3 mb-4">
                 <Avatar className="h-8 w-8 border-2 border-white">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                  <AvatarImage src="/placeholder.png?height=32&width=32" alt="User" />
                   <AvatarFallback>U1</AvatarFallback>
                 </Avatar>
                 <Avatar className="h-8 w-8 border-2 border-white">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                  <AvatarImage src="/placeholder.png?height=32&width=32" alt="User" />
                   <AvatarFallback>U2</AvatarFallback>
                 </Avatar>
                 <Avatar className="h-8 w-8 border-2 border-white">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                  <AvatarImage src="/placeholder.png?height=32&width=32" alt="User" />
                   <AvatarFallback>U3</AvatarFallback>
                 </Avatar>
                 <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs">+2.5k</div>

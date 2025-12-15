@@ -25,6 +25,12 @@ import {
   ChevronRight,
 } from "lucide-react"
 
+//get images from public /trips folder
+import MachuPichu from "@/public/trips/machu-pichu.jpg";
+import Tokyo from "@/public/trips/tokyo.jpg";
+import Africa from "@/public/trips/africa.jpg";
+import Santorini from "@/public/trips/santorini.jpg";
+
 // Sample journal cards data
 var journalCards = [
   {
@@ -39,7 +45,7 @@ var journalCards = [
     time: "Hace 2 horas",
     content:
       "Después de 4 días caminando el sendero inca, finalmente llegamos. Las primeras luces del amanecer iluminando estas ruinas milenarias... no hay palabras para describir esta emoción. 🌅",
-    image: "https://pixabay.com/get/g08c672afd7a9bb9049fddb6b70e1290f816926b6d38ff02c55676beeb2731a70d306115cd033f4d87684cb848340c3056e4b2813013a5f2fa29f69b49d46d92f_1280.jpg",
+    image: MachuPichu.src,
     likes: 127,
     comments: 23,
     gradient: "from-orange-400 to-pink-500",
@@ -58,7 +64,7 @@ var journalCards = [
     time: "Hace 1 día",
     content:
       "Las casas blancas brillando bajo la luna llena, el mar Egeo susurrando secretos antiguos... Santorini de noche es pura magia. Cada rincón cuenta una historia. ✨",
-    image: "https://pixabay.com/get/g13bc7816e754ed6b9016f471c8b0ce5df50238a124f9d248293132371bfb62f578b96b1acaf1e8578ef2f6c0cef9ecd9ff866f20dc14faf2bd34ee6ce0f115c4_1280.jpg",
+    image: Santorini.src,
     likes: 89,
     comments: 15,
     gradient: "from-blue-400 to-purple-500",
@@ -77,7 +83,7 @@ var journalCards = [
     time: "Hace 3 días",
     content:
       "Ver a los leones en su hábitat natural fue indescriptible. La gran migración está en su punto máximo y pudimos presenciar este espectáculo único de la naturaleza. 🦁",
-    image: "https://pixabay.com/get/g54e823cb167c77fe10cb8c5b7716ac18b379eb31afdff5429dec5ac095506c242434dd17de75d7c7a8829ab8bd7d59b7c02fb320a3ca348f3c1f0f5ce41ba145_1280.jpg",
+    image: Africa.src,
     likes: 156,
     comments: 31,
     gradient: "from-yellow-400 to-red-500",
@@ -96,7 +102,7 @@ var journalCards = [
     time: "Hace 1 semana",
     content:
       "Caminar por los senderos de bambú mientras el sol se filtra entre las hojas... Kioto tiene una energía especial que te conecta con siglos de historia y tradición. 🎋",
-    image: "https://pixabay.com/get/g1798c42ad336056fc167b54849a3626718f9ff036cdb53e0a42a7a77b1a1f89ff824bf5dfa775cd9a1c427b45a54603134fdb97adf3b2e28677e4b6225f2ddea_1280.jpg",
+    image: Tokyo.src,
     likes: 203,
     comments: 42,
     gradient: "from-green-400 to-teal-500",

@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Edit, Globe, Heart, MapPin, MessageSquare, Settings, Share2 } from "lucide-react"
+import TokyoImg from "@/public/trips/tokyo.jpg";
+import BarcelonaImg from "@/public/trips/barcelona.jpg";
+import MachuPichuImg from "@/public/trips/machu-pichu.jpg";
 
 // Sample user data
 const userData = {
@@ -12,7 +15,7 @@ const userData = {
   username: "traveljohn",
   bio: "Buscador de aventuras | Entusiasta de la fotografía | 25 países y contando",
   avatar: "https://api.dicebear.com/9.x/notionists/png?seed=john_doe",
-  coverPhoto: "https://pixabay.com/get/ga1488b47a4e75c778056f9248076fb9ab1dc925af6053b4eccec6470b8da048e829a5331c31ddb83c78a2a958b3d080f278f415403d006854c3033c01b5fc58c_1280.jpg",
+  coverPhoto: MachuPichuImg.src,
   location: "San Francisco, CA",
   journalCount: 42,
   followers: 128,
@@ -30,7 +33,7 @@ const userData = {
       title: "Verano en Barcelona",
       date: "June 15, 2023",
       location: "Barcelona, Spain",
-      image: "https://pixabay.com/get/g5d96676ae25494a1503a6d5c299612fcca8bc7121a53f51e88e2247469fbfd93f93e35a431271631457c800dc2516b9a1e98eeff9681cfd9eabe6cee068bfbbe_1280.jpg",
+      image: BarcelonaImg.src,
       likes: 24,
       comments: 8,
     },
@@ -39,7 +42,7 @@ const userData = {
       title: "Aventuras en Tokio",
       date: "April 3, 2023",
       location: "Tokyo, Japan",
-      image: "https://pixabay.com/get/g6d45eaedf7022b9cb33b8b94b4641237bf1c0a307028229a1c4bf5d93d857e519c1a12402abfbcffed44eca81587d75b83769dc8c40bc03739b5807c8131287e_1280.jpg",
+      image: TokyoImg.src,
       likes: 42,
       comments: 15,
     },

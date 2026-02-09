@@ -3,6 +3,8 @@ import "./globals.css"
 import { Inter } from "next/font/google"
 import { Merriweather } from "next/font/google"
 import Navbar from "@/components/navbar"
+import AuthProvider from "@/providers/auth-provider"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,7 +18,10 @@ const merriweather = Merriweather({
 })
 
 export const metadata = {
-  title: "Travelog - Tu App de Bitácoras de Viaje",
+  title: {
+    default: "Travelog — Tu Diario de Viaje",
+    template: "%s — Travelog",
+  },
   description: "Captura, preserva y comparte tus recuerdos de viaje con un toque de nostalgia",
 }
 
@@ -28,8 +33,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.variable} ${merriweather.variable} font-sans antialiased`}>
+        <AuthProvider>
           <Navbar />
           <main>{children}</main>
+          <Toaster richColors position="bottom-right" />
+        </AuthProvider>
       </body>
     </html>
   )

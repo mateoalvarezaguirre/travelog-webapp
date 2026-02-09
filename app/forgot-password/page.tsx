@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,8 @@ import { ArrowLeft, Mail, AlertCircle, CheckCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { forgotPassword } from "@/lib/api/auth"
+import { ApiClientError } from "@/lib/api/client"
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, "El email es requerido").email("Ingresa un email válido"),
@@ -21,6 +23,8 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => { document.title = "Recuperar Contraseña — Travelog" }, [])
 
   const {
     register,
@@ -36,15 +40,14 @@ export default function ForgotPasswordPage() {
     setSuccess(false)
 
     try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Aquí iría la lógica real para enviar email de recuperación
-      console.log("Forgot password data:", data)
-
+      await forgotPassword(data.email)
       setSuccess(true)
     } catch (err) {
-      setError("Error al enviar el email de recuperación")
+      if (err instanceof ApiClientError) {
+        setError(err.message)
+      } else {
+        setError("Error al enviar el email de recuperación")
+      }
     } finally {
       setIsLoading(false)
     }

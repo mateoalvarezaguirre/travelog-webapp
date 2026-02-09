@@ -2,14 +2,36 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { Bell, Compass, Download, Globe, Menu, PenLine, Search, User, X } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Bell, Compass, Download, Globe, LogOut, Menu, PenLine, Search, Settings, User, X } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function Navbar() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const { user, isAuthenticated, isLoading, signOut } = useAuth()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/explore?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery("")
+      setIsSearchOpen(false)
+      setIsMenuOpen(false)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
@@ -25,37 +47,45 @@ export default function Navbar() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link href="/journals" className="font-medium transition-colors hover:text-amber-600">
-              Mis Bitácoras
-            </Link>
+            {isAuthenticated && (
+              <Link href="/journals" className="font-medium transition-colors hover:text-amber-600">
+                Mis Bitácoras
+              </Link>
+            )}
             <Link href="/explore" className="font-medium transition-colors hover:text-amber-600">
               Explorar
             </Link>
-            <Link href="/map" className="font-medium transition-colors hover:text-amber-600">
-              Mapa de Viajes
-            </Link>
+            {isAuthenticated && (
+              <Link href="/map" className="font-medium transition-colors hover:text-amber-600">
+                Mapa de Viajes
+              </Link>
+            )}
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
           {isSearchOpen ? (
-            <div className="relative hidden md:block">
+            <form onSubmit={handleSearch} className="relative hidden md:block">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Buscar bitácoras..."
                 className="w-[200px] pl-8 md:w-[300px] rounded-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
               />
               <Button
                 variant="ghost"
                 size="icon"
+                type="button"
                 className="absolute right-0 top-0 h-9 w-9"
-                onClick={() => setIsSearchOpen(false)}
+                onClick={() => { setIsSearchOpen(false); setSearchQuery("") }}
               >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Cerrar búsqueda</span>
               </Button>
-            </div>
+            </form>
           ) : (
             <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setIsSearchOpen(true)}>
               <Search className="h-5 w-5" />
@@ -63,29 +93,69 @@ export default function Navbar() {
             </Button>
           )}
 
-          <Button variant="ghost" size="icon" className="hidden md:flex relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-amber-600 rounded-full"></span>
-            <span className="sr-only">Notificaciones</span>
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button variant="ghost" size="icon" className="hidden md:flex relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-amber-600 rounded-full"></span>
+                <span className="sr-only">Notificaciones</span>
+              </Button>
 
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Download className="h-5 w-5" />
-            <span className="sr-only">Modo Sin Conexión</span>
-          </Button>
+              <Button asChild className="hidden md:flex bg-amber-600 hover:bg-amber-700">
+                <Link href="/create">
+                  <PenLine className="mr-2 h-4 w-4" /> Nueva Bitácora
+                </Link>
+              </Button>
 
-          <Button asChild className="hidden md:flex bg-amber-600 hover:bg-amber-700">
-            <Link href="/create">
-              <PenLine className="mr-2 h-4 w-4" /> Nueva Bitácora
-            </Link>
-          </Button>
-
-          <Link href="/profile" className="flex items-center">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src="https://api.dicebear.com/9.x/notionists/png?seed=john_doe" alt="User" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-          </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
+                      <AvatarFallback>
+                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" /> Perfil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" /> Configuración
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            !isLoading && (
+              <div className="flex items-center gap-2">
+                <Button asChild variant="ghost" className="hidden md:flex">
+                  <Link href="/login">Iniciar Sesión</Link>
+                </Button>
+                <Button asChild className="bg-amber-600 hover:bg-amber-700">
+                  <Link href="/register">Registrarse</Link>
+                </Button>
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -103,19 +173,27 @@ export default function Navbar() {
           </div>
 
           <div className="p-4">
-            <div className="relative mb-4">
+            <form onSubmit={handleSearch} className="relative mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Buscar bitácoras..." className="w-full pl-8 rounded-full" />
-            </div>
+              <Input
+                type="search"
+                placeholder="Buscar bitácoras..."
+                className="w-full pl-8 rounded-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
 
             <nav className="grid gap-4 text-lg">
-              <Link
-                href="/journals"
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <PenLine className="h-5 w-5" /> Mis Bitácoras
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/journals"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <PenLine className="h-5 w-5" /> Mis Bitácoras
+                </Link>
+              )}
               <Link
                 href="/explore"
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
@@ -123,35 +201,56 @@ export default function Navbar() {
               >
                 <Compass className="h-5 w-5" /> Explorar
               </Link>
-              <Link
-                href="/map"
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Globe className="h-5 w-5" /> Mapa de Viajes
-              </Link>
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <User className="h-5 w-5" /> Perfil
-              </Link>
-              <Link
-                href="/offline"
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Download className="h-5 w-5" /> Modo Sin Conexión
-              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link
+                    href="/map"
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Globe className="h-5 w-5" /> Mapa de Viajes
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" /> Perfil
+                  </Link>
+                </>
+              )}
             </nav>
 
-            <div className="mt-6">
-              <Button asChild className="w-full bg-amber-600 hover:bg-amber-700">
-                <Link href="/create" onClick={() => setIsMenuOpen(false)}>
-                  <PenLine className="mr-2 h-4 w-4" /> Nueva Bitácora
-                </Link>
-              </Button>
+            <div className="mt-6 space-y-3">
+              {isAuthenticated ? (
+                <>
+                  <Button asChild className="w-full bg-amber-600 hover:bg-amber-700">
+                    <Link href="/create" onClick={() => setIsMenuOpen(false)}>
+                      <PenLine className="mr-2 h-4 w-4" /> Nueva Bitácora
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full text-red-600"
+                    onClick={() => { signOut({ callbackUrl: "/" }); setIsMenuOpen(false) }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild className="w-full bg-amber-600 hover:bg-amber-700">
+                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                      Registrarse
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                      Iniciar Sesión
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

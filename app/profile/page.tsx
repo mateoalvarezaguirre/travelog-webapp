@@ -1,61 +1,72 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Edit, Globe, Heart, MapPin, MessageSquare, Settings, Share2 } from "lucide-react"
-import TokyoImg from "@/public/trips/tokyo.jpg";
-import BarcelonaImg from "@/public/trips/barcelona.jpg";
-import MachuPichuImg from "@/public/trips/machu-pichu.jpg";
+import { useProfile, useUserStats } from "@/hooks/use-profile"
+import { useJournals } from "@/hooks/use-journals"
+import { MapView } from "@/components/map/map-view"
+import { usePlaces } from "@/hooks/use-places"
+import type { MapConfig, MapMarker } from "@/lib/maps"
 
-// Sample user data
-const userData = {
-  name: "John Doe",
-  username: "traveljohn",
-  bio: "Buscador de aventuras | Entusiasta de la fotografía | 25 países y contando",
-  avatar: "https://api.dicebear.com/9.x/notionists/png?seed=john_doe",
-  coverPhoto: MachuPichuImg.src,
-  location: "San Francisco, CA",
-  journalCount: 42,
-  followers: 128,
-  following: 97,
-  countries: ["Spain", "Japan", "Brazil", "Greece", "Italy", "France", "Thailand", "Australia"],
-  stats: {
-    totalDistance: "87,432 km",
-    countriesVisited: 25,
-    citiesExplored: 78,
-    journalsWritten: 42,
-  },
-  recentJournals: [
-    {
-      id: 1,
-      title: "Verano en Barcelona",
-      date: "June 15, 2023",
-      location: "Barcelona, Spain",
-      image: BarcelonaImg.src,
-      likes: 24,
-      comments: 8,
-    },
-    {
-      id: 2,
-      title: "Aventuras en Tokio",
-      date: "April 3, 2023",
-      location: "Tokyo, Japan",
-      image: TokyoImg.src,
-      likes: 42,
-      comments: 15,
-    },
-  ],
+const mapConfig: MapConfig = {
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
 }
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("journals")
+  const { profile, isLoading: profileLoading } = useProfile()
+
+  useEffect(() => {
+    if (profile) document.title = `${profile.name} — Travelog`
+    else document.title = "Mi Perfil — Travelog"
+  }, [profile])
+  const { stats, isLoading: statsLoading } = useUserStats()
+  const { journals, isLoading: journalsLoading } = useJournals()
+  const { places } = usePlaces()
+
+  const mapMarkers: MapMarker[] = places.map(p => ({
+    id: String(p.id),
+    position: p.coordinates,
+    type: p.markerType,
+    title: p.name,
+    label: p.journalCount ? String(p.journalCount) : undefined,
+  }))
+
+  if (profileLoading) {
+    return (
+      <div>
+        <div className="h-48 md:h-64 bg-gray-200 animate-pulse" />
+        <div className="container mx-auto px-4">
+          <div className="relative -mt-16 mb-8 flex flex-col md:flex-row md:items-end gap-4">
+            <div className="h-32 w-32 rounded-full bg-gray-300 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-muted-foreground">No se pudo cargar el perfil</p>
+      </div>
+    )
+  }
 
   return (
     <div>
       <div className="relative h-48 md:h-64 bg-gray-200 overflow-hidden">
-        <img src={userData.coverPhoto || "/placeholder.svg"} alt="Cover" className="w-full h-full object-cover" />
+        {profile.coverPhoto && (
+          <img src={profile.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+        )}
         <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-white/80 hover:bg-white">
           <Edit className="h-4 w-4" />
         </Button>
@@ -65,16 +76,18 @@ export default function ProfilePage() {
         <div className="relative -mt-16 mb-8 flex flex-col md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col md:flex-row md:items-end gap-4">
             <Avatar className="h-32 w-32 border-4 border-black bg-white rounded-full">
-              <AvatarImage src={userData.avatar || "/placeholder.svg"} alt={userData.name} />
-              <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={profile.avatar || undefined} alt={profile.name} />
+              <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
             </Avatar>
 
             <div className="mt-4 md:mt-0">
-              <h1 className="text-3xl font-bold font-serif">{userData.name}</h1>
-              <p className="text-muted-foreground">@{userData.username}</p>
-              <div className="flex items-center mt-2 text-sm">
-                <MapPin className="h-4 w-4 mr-1 text-amber-600" /> {userData.location}
-              </div>
+              <h1 className="text-3xl font-bold font-serif">{profile.name}</h1>
+              <p className="text-muted-foreground">@{profile.username}</p>
+              {profile.location && (
+                <div className="flex items-center mt-2 text-sm">
+                  <MapPin className="h-4 w-4 mr-1 text-amber-600" /> {profile.location}
+                </div>
+              )}
             </div>
           </div>
 
@@ -89,36 +102,33 @@ export default function ProfilePage() {
         </div>
 
         <div className="mb-8">
-          <p className="mb-4">{userData.bio}</p>
+          {profile.bio && <p className="mb-4">{profile.bio}</p>}
 
           <div className="flex flex-wrap gap-6 text-sm">
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-2 text-amber-600" /> Se unió en enero de 2020
             </div>
             <div className="flex items-center">
-              <Globe className="h-4 w-4 mr-2 text-amber-600" /> {userData.stats.countriesVisited} países visitados
+              <Globe className="h-4 w-4 mr-2 text-amber-600" /> {profile.countriesVisited} países visitados
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white border border-gray-100 rounded-lg p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-amber-600">{userData.journalCount}</div>
+            <div className="text-2xl font-bold text-amber-600">{profile.journalCount}</div>
             <div className="text-sm text-muted-foreground">Bitácoras</div>
           </div>
-
           <div className="bg-white border border-gray-100 rounded-lg p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-amber-600">{userData.stats.countriesVisited}</div>
+            <div className="text-2xl font-bold text-amber-600">{profile.countriesVisited}</div>
             <div className="text-sm text-muted-foreground">Países</div>
           </div>
-
           <div className="bg-white border border-gray-100 rounded-lg p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-amber-600">{userData.followers}</div>
+            <div className="text-2xl font-bold text-amber-600">{profile.followersCount}</div>
             <div className="text-sm text-muted-foreground">Seguidores</div>
           </div>
-
           <div className="bg-white border border-gray-100 rounded-lg p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-amber-600">{userData.following}</div>
+            <div className="text-2xl font-bold text-amber-600">{profile.followingCount}</div>
             <div className="text-sm text-muted-foreground">Siguiendo</div>
           </div>
         </div>
@@ -132,65 +142,68 @@ export default function ProfilePage() {
           </TabsList>
 
           <TabsContent value="journals">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {userData.recentJournals.map((journal) => (
-                <div
-                  key={journal.id}
-                  className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="aspect-video relative">
-                    <img
-                      src={journal.image || "/placeholder.svg"}
-                      alt={journal.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-white/80 px-2 py-1 rounded text-xs flex items-center">
-                      <MapPin className="h-3 w-3 mr-1 text-amber-600" /> {journal.location}
-                    </div>
-                  </div>
-
-                  <div className="p-4">
-                    <div className="flex items-center text-sm text-muted-foreground mb-2">
-                      <Calendar className="h-3 w-3 mr-1" /> {journal.date}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4 font-serif">{journal.title}</h3>
-
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Heart className="h-4 w-4" /> {journal.likes}
-                        </span>
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <MessageSquare className="h-4 w-4" /> {journal.comments}
-                        </span>
+            {journalsLoading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Cargando bitácoras...</p>
+              </div>
+            ) : journals.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">Aún no has escrito bitácoras</p>
+                <Link href="/create">
+                  <Button className="bg-amber-600 hover:bg-amber-700">Crear tu primera bitácora</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {journals.map((journal) => (
+                  <div
+                    key={journal.id}
+                    className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="aspect-video relative">
+                      <img
+                        src={journal.images[0]?.url || "/placeholder.svg"}
+                        alt={journal.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-2 left-2 bg-white/80 px-2 py-1 rounded text-xs flex items-center">
+                        <MapPin className="h-3 w-3 mr-1 text-amber-600" /> {journal.location}
                       </div>
-                      <Button variant="ghost" size="sm" className="text-amber-600">
-                        Ver
-                      </Button>
+                    </div>
+
+                    <div className="p-4">
+                      <div className="flex items-center text-sm text-muted-foreground mb-2">
+                        <Calendar className="h-3 w-3 mr-1" /> {journal.date}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-4 font-serif">{journal.title}</h3>
+
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="flex items-center gap-4">
+                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Heart className="h-4 w-4" /> {journal.likesCount}
+                          </span>
+                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <MessageSquare className="h-4 w-4" /> {journal.commentsCount}
+                          </span>
+                        </div>
+                        <Link href={`/journals/${journal.id}`}>
+                          <Button variant="ghost" size="sm" className="text-amber-600">
+                            Ver
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="map">
             <div className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
               <h2 className="text-xl font-semibold mb-4 font-serif">Mi Mapa de Viajes</h2>
-              <div className="aspect-video bg-gray-200 rounded-lg mb-4 relative">
-                {/* This would be replaced with an actual map component */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-muted-foreground">
-                    El mapa mundial interactivo con ubicaciones visitadas se mostraría aquí
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-4">
-                {userData.countries.map((country, index) => (
-                  <div key={index} className="bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-sm">
-                    {country}
-                  </div>
-                ))}
+              <div className="aspect-video rounded-lg mb-4 overflow-hidden">
+                <MapView config={mapConfig} markers={mapMarkers} />
               </div>
             </div>
           </TabsContent>
@@ -198,78 +211,52 @@ export default function ProfilePage() {
           <TabsContent value="stats">
             <div className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
               <h2 className="text-xl font-semibold mb-6 font-serif">Estadísticas de Viaje</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-2 border-b">
-                    <span className="text-muted-foreground">Distancia Total Recorrida</span>
-                    <span className="font-medium">{userData.stats.totalDistance}</span>
+              {statsLoading ? (
+                <p className="text-muted-foreground">Cargando estadísticas...</p>
+              ) : stats ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center pb-2 border-b">
+                      <span className="text-muted-foreground">Distancia Total Recorrida</span>
+                      <span className="font-medium">{stats.totalDistance}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b">
+                      <span className="text-muted-foreground">Países Visitados</span>
+                      <span className="font-medium">{stats.countriesVisited}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b">
+                      <span className="text-muted-foreground">Ciudades Exploradas</span>
+                      <span className="font-medium">{stats.citiesExplored}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b">
+                      <span className="text-muted-foreground">Bitácoras Escritas</span>
+                      <span className="font-medium">{stats.journalsWritten}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center pb-2 border-b">
-                    <span className="text-muted-foreground">Países Visitados</span>
-                    <span className="font-medium">{userData.stats.countriesVisited}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b">
-                    <span className="text-muted-foreground">Ciudades Exploradas</span>
-                    <span className="font-medium">{userData.stats.citiesExplored}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b">
-                    <span className="text-muted-foreground">Bitácoras Escritas</span>
-                    <span className="font-medium">{userData.stats.journalsWritten}</span>
-                  </div>
-                </div>
 
-                <div className="bg-amber-50 rounded-lg p-4">
-                  <h3 className="text-lg font-medium mb-4">Regiones Más Visitadas</h3>
-                  {/* This would be a chart in a real app */}
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Europa</span>
-                        <span>42%</span>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-600 h-2 rounded-full" style={{ width: "42%" }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Asia</span>
-                        <span>28%</span>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-600 h-2 rounded-full" style={{ width: "28%" }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>América del Norte</span>
-                        <span>15%</span>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-600 h-2 rounded-full" style={{ width: "15%" }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>América del Sur</span>
-                        <span>10%</span>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-600 h-2 rounded-full" style={{ width: "10%" }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Oceanía</span>
-                        <span>5%</span>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-600 h-2 rounded-full" style={{ width: "5%" }}></div>
-                      </div>
+                  <div className="bg-amber-50 rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-4">Regiones Más Visitadas</h3>
+                    <div className="space-y-3">
+                      {stats.regions.map((region) => (
+                        <div key={region.name}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>{region.name}</span>
+                            <span>{region.percentage}%</span>
+                          </div>
+                          <div className="w-full bg-amber-200 rounded-full h-2">
+                            <div
+                              className="bg-amber-600 h-2 rounded-full"
+                              style={{ width: `${region.percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <p className="text-muted-foreground">No hay estadísticas disponibles</p>
+              )}
             </div>
           </TabsContent>
 
@@ -280,7 +267,9 @@ export default function ProfilePage() {
               <p className="text-muted-foreground max-w-md mx-auto mb-6">
                 Cuando guardes bitácoras de otros viajeros, aparecerán aquí para fácil acceso
               </p>
-              <Button className="bg-amber-600 hover:bg-amber-700">Explorar Bitácoras</Button>
+              <Link href="/explore">
+                <Button className="bg-amber-600 hover:bg-amber-700">Explorar Bitácoras</Button>
+              </Link>
             </div>
           </TabsContent>
         </Tabs>

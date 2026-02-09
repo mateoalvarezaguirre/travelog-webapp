@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +13,9 @@ import { Eye, EyeOff, Mail, Lock, User, AlertCircle, Check } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { registerUser } from "@/lib/api/auth"
+import { ApiClientError } from "@/lib/api/client"
+import { toast } from "sonner"
 
 const registerSchema = z
   .object({
@@ -40,10 +45,13 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => { document.title = "Registrarse — Travelog" }, [])
 
   const {
     register,
@@ -73,42 +81,47 @@ export default function RegisterPage() {
     setError("")
 
     try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await registerUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.confirmPassword,
+      })
 
-      // Aquí iría la lógica real de registro
-      console.log("Register data:", data)
+      // Auto-login after successful registration
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
 
-      // Simular error para demostración
-      if (data.email === "existing@example.com") {
-        throw new Error("Este email ya está registrado")
+      if (result?.error) {
+        // Registration succeeded but auto-login failed, redirect to login
+        toast.success("Cuenta creada. Inicia sesión para continuar.")
+        router.push("/login")
+      } else {
+        toast.success("Cuenta creada exitosamente")
+        router.push("/journals")
       }
-
-      // Redirigir al dashboard o página de verificación
-      window.location.href = "/journals"
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear la cuenta")
+      if (err instanceof ApiClientError) {
+        if (err.errors?.email) {
+          setError(err.errors.email[0])
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError("Error al crear la cuenta. Intenta nuevamente.")
+      }
+      toast.error("Error al crear la cuenta")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleRegister = async () => {
+  const handleGoogleRegister = () => {
     setIsLoading(true)
-    setError("")
-
-    try {
-      // Simular autenticación con Google
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      console.log("Google register initiated")
-
-      // Aquí iría la integración real con Google OAuth
-      window.location.href = "/journals"
-    } catch (err) {
-      setError("Error al conectar con Google")
-    } finally {
-      setIsLoading(false)
-    }
+    signIn("google", { callbackUrl: "/journals" })
   }
 
   return (

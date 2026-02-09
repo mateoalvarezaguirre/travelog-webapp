@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +13,7 @@ import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { toast } from "sonner"
 
 const loginSchema = z.object({
   email: z.string().min(1, "El email es requerido").email("Ingresa un email válido"),
@@ -20,9 +23,23 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  )
+}
+
+function LoginContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl") || "/journals"
+
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => { document.title = "Iniciar Sesión — Travelog" }, [])
 
   const {
     register,
@@ -37,42 +54,29 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
 
-      // Aquí iría la lógica real de autenticación
-      console.log("Login data:", data)
-
-      // Simular error para demostración
-      if (data.email === "error@example.com") {
-        throw new Error("Credenciales incorrectas")
+      if (result?.error) {
+        setError("Credenciales incorrectas. Verifica tu email y contraseña.")
+        toast.error("Credenciales incorrectas")
+      } else {
+        router.push(callbackUrl)
       }
-
-      // Redirigir al dashboard o página principal
-      window.location.href = "/journals"
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión")
+    } catch {
+      setError("Error al iniciar sesión. Intenta nuevamente.")
+      toast.error("Error al iniciar sesión")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setIsLoading(true)
-    setError("")
-
-    try {
-      // Simular autenticación con Google
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      console.log("Google login initiated")
-
-      // Aquí iría la integración real con Google OAuth
-      window.location.href = "/journals"
-    } catch (err) {
-      setError("Error al conectar con Google")
-    } finally {
-      setIsLoading(false)
-    }
+    signIn("google", { callbackUrl })
   }
 
   return (
